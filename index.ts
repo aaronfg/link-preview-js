@@ -80,7 +80,7 @@ function getImages(
 
   if (nodes) {
     nodes.each((_: number, node: cheerio.Element) => {
-      if (node.type === "tag") {
+      if (node.type === `tag`) {
         src = node.attribs.content;
         if (src) {
           src = urlObj.resolve(rootUrl, src);
@@ -102,7 +102,7 @@ function getImages(
         dic = {};
         images = [];
         nodes.each((_: number, node: cheerio.Element) => {
-          if (node.type === "tag") src = node.attribs.src;
+          if (node.type === `tag`) src = node.attribs.src;
           if (src && !dic[src]) {
             dic[src] = true;
             // width = node.attribs.width;
@@ -150,14 +150,14 @@ function getVideos(doc: cheerio.Root) {
 
     for (index = 0; index < nodes.length; index += 1) {
       const node = nodes[index];
-      if (node.type === "tag") video = node.attribs.content;
+      if (node.type === `tag`) video = node.attribs.content;
 
       nodeType = nodeTypes![index];
-      if (nodeType.type === "tag")
+      if (nodeType.type === `tag`)
         videoType = nodeType ? nodeType.attribs.content : null;
 
       nodeSecureUrl = nodeSecureUrls![index];
-      if (nodeSecureUrl.type === "tag")
+      if (nodeSecureUrl.type === `tag`)
         videoSecureUrl = nodeSecureUrl ? nodeSecureUrl.attribs.content : null;
 
       videoObj = {
@@ -202,7 +202,7 @@ function getFavicons(doc: cheerio.Root, rootUrl: string) {
     // collect all images from icon tags
     if (nodes.length) {
       nodes.each((_: number, node: cheerio.Element) => {
-        if (node.type === "tag") src = node.attribs.href;
+        if (node.type === `tag`) src = node.attribs.href;
         if (src) {
           src = urlObj.resolve(rootUrl, src);
           images.push(src);
@@ -219,41 +219,41 @@ function getFavicons(doc: cheerio.Root, rootUrl: string) {
   return images;
 }
 
-function parseImageResponse(url: string, contentType: string) {
-  return {
-    url,
-    mediaType: `image`,
-    contentType,
-    favicons: [getDefaultFavicon(url)],
-  };
-}
+// function parseImageResponse(url: string, contentType: string) {
+//   return {
+//     url,
+//     mediaType: `image`,
+//     contentType,
+//     favicons: [getDefaultFavicon(url)],
+//   };
+// }
 
-function parseAudioResponse(url: string, contentType: string) {
-  return {
-    url,
-    mediaType: `audio`,
-    contentType,
-    favicons: [getDefaultFavicon(url)],
-  };
-}
+// function parseAudioResponse(url: string, contentType: string) {
+//   return {
+//     url,
+//     mediaType: `audio`,
+//     contentType,
+//     favicons: [getDefaultFavicon(url)],
+//   };
+// }
 
-function parseVideoResponse(url: string, contentType: string) {
-  return {
-    url,
-    mediaType: `video`,
-    contentType,
-    favicons: [getDefaultFavicon(url)],
-  };
-}
+// function parseVideoResponse(url: string, contentType: string) {
+//   return {
+//     url,
+//     mediaType: `video`,
+//     contentType,
+//     favicons: [getDefaultFavicon(url)],
+//   };
+// }
 
-function parseApplicationResponse(url: string, contentType: string) {
-  return {
-    url,
-    mediaType: `application`,
-    contentType,
-    favicons: [getDefaultFavicon(url)],
-  };
-}
+// function parseApplicationResponse(url: string, contentType: string) {
+//   return {
+//     url,
+//     mediaType: `application`,
+//     contentType,
+//     favicons: [getDefaultFavicon(url)],
+//   };
+// }
 
 function parseTextResponse(
   body: string,
@@ -299,7 +299,8 @@ function parseResponse(
     }
 
     if (!contentType) {
-      return parseUnknownResponse(response.data, response.url, options);
+      throw new Error(`link-preview-js could not fetch link information`);
+      // return parseUnknownResponse(response.data, response.url, options);
     }
 
     if ((contentType as any) instanceof Array) {
@@ -308,27 +309,28 @@ function parseResponse(
     }
 
     // parse response depending on content type
-    if (CONSTANTS.REGEX_CONTENT_TYPE_IMAGE.test(contentType)) {
-      return parseImageResponse(response.url, contentType);
-    }
-    if (CONSTANTS.REGEX_CONTENT_TYPE_AUDIO.test(contentType)) {
-      return parseAudioResponse(response.url, contentType);
-    }
-    if (CONSTANTS.REGEX_CONTENT_TYPE_VIDEO.test(contentType)) {
-      return parseVideoResponse(response.url, contentType);
-    }
+    // if (CONSTANTS.REGEX_CONTENT_TYPE_IMAGE.test(contentType)) {
+    //   return parseImageResponse(response.url, contentType);
+    // }
+    // if (CONSTANTS.REGEX_CONTENT_TYPE_AUDIO.test(contentType)) {
+    //   return parseAudioResponse(response.url, contentType);
+    // }
+    // if (CONSTANTS.REGEX_CONTENT_TYPE_VIDEO.test(contentType)) {
+    //   return parseVideoResponse(response.url, contentType);
+    // }
     if (CONSTANTS.REGEX_CONTENT_TYPE_TEXT.test(contentType)) {
       const htmlString = response.data;
       return parseTextResponse(htmlString, response.url, options, contentType);
     }
-    if (CONSTANTS.REGEX_CONTENT_TYPE_APPLICATION.test(contentType)) {
-      return parseApplicationResponse(response.url, contentType);
-    }
-    const htmlString = response.data;
-    return parseUnknownResponse(htmlString, response.url, options);
+    // if (CONSTANTS.REGEX_CONTENT_TYPE_APPLICATION.test(contentType)) {
+    //   return parseApplicationResponse(response.url, contentType);
+    // }
+    // const htmlString = response.data;
+    // return parseUnknownResponse(htmlString, response.url, options);
+    throw new Error(`link-preview-js could not fetch link information`);
   } catch (e) {
     throw new Error(
-      `link-preview-js could not fetch link information ${e.toString()}`
+      `link-preview-js could not fetch link information ${e.toString()}`,
     );
   }
 }
